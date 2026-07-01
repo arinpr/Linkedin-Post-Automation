@@ -50,9 +50,9 @@ LINKEDIN PUBLISHING (compliant — do NOT use browser automation/scraping; that 
 - If LinkedIn isn't connected yet, still let me create/approve/schedule posts and clearly show "LinkedIn not connected" states. Stub the API calls cleanly so they're easy to complete once credentials are added.
 
 SECRETS (reference these; I will add them in Supabase)
-- LLM: use OPENAI_API_KEY (allow ANTHROPIC_API_KEY or GEMINI_API_KEY as alternatives selectable in Settings).
-- Optional image gen: OPENAI_API_KEY or REPLICATE_API_TOKEN.
-- LinkedIn: LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET, and the OAuth redirect URL.
+- LLM: use OPENAI_API_KEY (allow  GEMINI_API_KEY or OPEN_ROUTER as alternatives selectable in Settings).
+- Optional image gen: GEMINI_API_KEY or OPENAI_API_KEY.
+- LinkedIn: Use agentic browser to open Linkedin and Loggedin and It should autometically open visit, check visually which is good and post accordingly
 
 SEED DATA
 Seed the 5 pillars and a handful of realistic sample trends and sample drafts per pillar so the dashboard, trends board, and approvals queue look populated on first load.
