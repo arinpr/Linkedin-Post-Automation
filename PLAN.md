@@ -30,10 +30,9 @@ The part of your request that needs a compliant approach:
 
 > "automatically visit to my LinkedIn profile and visually check, post content, scheduled content…"
 
-- **Do NOT** drive a headless browser that logs into LinkedIn and clicks around. Automated browsing/scraping/robotic posting violates the [LinkedIn User Agreement §8.2](https://www.linkedin.com/legal/user-agreement) and is the #1 cause of account restrictions/bans. That risks the exact asset (your profile) you're trying to grow.
-- **Compliant path (what this plan uses):** LinkedIn's official **OAuth 2.0 + Posting API** with the `w_member_social` scope (from the "Share on LinkedIn" product) and `Sign In with LinkedIn using OpenID Connect`. This lets the app publish text + image/document (carousel) posts to *your* profile with your explicit authorization.
-- **Human‑in‑the‑loop by default:** Because the goal is high‑value clients, every post gets an **Approve / Edit / Reject** step before it goes live (you can toggle "auto‑publish approved queue" once you trust it).
-- **Analytics limits:** LinkedIn's API exposes rich analytics for *Company Pages*, but **personal profile** follower/impression analytics are limited. So the app supports (a) API metrics where available, and (b) a fast manual "log yesterday's numbers" entry, plus optional CSV import of LinkedIn's native analytics export.
+- **Do**
+- Use headless browser to visit profile and check and post accordingly by checking it visually
+
 
 The prompt is written so Lovable builds the compliant version, with browser‑automation explicitly out of scope.
 
@@ -45,7 +44,7 @@ The prompt is written so Lovable builds the compliant version, with browser‑au
 ┌────────────────────────────────────────────────────────────────┐
 │  React + Tailwind + shadcn/ui (Lovable frontend)                 │
 │  Dashboard · Trends · Content Studio · Carousel Editor · Queue   │
-│  Calendar · Approvals · Analytics · Leads CRM · Settings         │
+│  Calendar · Analytics · Leads CRM · Settings         │
 └───────────────┬──────────────────────────────────────────────────┘
                 │ Supabase JS (auth + data)
 ┌───────────────▼──────────────────────────────────────────────────┐
@@ -57,9 +56,9 @@ The prompt is written so Lovable builds the compliant version, with browser‑au
 │  • Cron (pg_cron): trend refresh + publish-due-posts               │
 └───┬───────────────┬───────────────┬───────────────┬───────────────┘
     │               │               │               │
- Trend sources   LLM API        Image/Carousel   LinkedIn API
- (HN, Dev.to,    (OpenAI/       (client render   (OAuth + Posts /
- Reddit, RSS,    Anthropic/     of slides →      w_member_social)
+ Trend sources   LLM API        Image/Carousel   LinkedIn Headless Browser Login and use safely
+ (HN, Dev.to,    (OpenAI/       (client render   
+ Reddit, RSS,    Openrouter/     of slides →      
  GitHub, PH)     Gemini)        PNG/PDF)
 ```
 
@@ -104,7 +103,7 @@ Output = a **Draft** record (text + assets + metadata + verifier report) that la
 
 ## 6. Key user flows
 
-1. **Onboarding:** enter brand voice, tech stack, target client profile, timezone → connect LinkedIn (OAuth) → pick pillars.
+1. **Onboarding:** enter brand voice, tech stack, target client profile, timezone → connect LinkedIn  → pick pillars.
 2. **Discover trends:** Trend Scout populates the Trends board (auto daily + manual refresh). You star the ones you like.
 3. **Generate:** click "Generate content" on a trend → pipeline runs the agents (live status per agent) → draft + carousel + verifier report appear.
 4. **Review/Approve:** edit inline, see the verifier's flags, Approve → schedule (auto‑suggested best slot) or Reject.
@@ -118,16 +117,10 @@ Output = a **Draft** record (text + assets + metadata + verifier report) that la
 
 | Purpose | Provider (pick one where noted) | Secret |
 |---|---|---|
-| LLM (agents) | OpenAI **or** Anthropic **or** Gemini | `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` |
+| LLM (agents) | OpenAI **or** Open Router **or** Gemini | `OPENAI_API_KEY` / `OPEN_ROUTER_API_KEY` / `GEMINI_API_KEY` |
 | Image generation (optional) | OpenAI Images / Replicate | `OPENAI_API_KEY` / `REPLICATE_API_TOKEN` |
-| LinkedIn publishing | LinkedIn Developer App | `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, redirect URL |
+| LinkedIn publishing
 | Trend sources | HN/Dev.to/GitHub/Reddit/Product Hunt/RSS | mostly public; Reddit/PH may need app tokens |
-
-**LinkedIn app setup (one‑time, you do this):**
-1. Create an app at the LinkedIn Developer Portal.
-2. Add products: **Sign In with LinkedIn using OpenID Connect** + **Share on LinkedIn**.
-3. Request scopes: `openid`, `profile`, `email`, `w_member_social`.
-4. Set the OAuth redirect URL to your app's callback (Lovable will give you the URL).
 
 ---
 
@@ -144,7 +137,6 @@ The single prompt gets you a working v1. Recommended follow‑up prompts in Lova
 
 ## 9. Risks & mitigations
 
-- **Account safety:** official API + human approval only; no browser bots. → protects your profile.
 - **AI hallucination:** dedicated Verifier agent + your final approval. → protects credibility with big clients.
 - **API limits/costs:** cache trends; batch LLM calls; let user pick model. 
 - **Personal‑profile analytics gaps:** manual/CSV logging fallback.
